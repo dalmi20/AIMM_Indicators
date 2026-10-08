@@ -39,13 +39,6 @@ src/
 
 Pour modifier une borne, un seuil ou un état, il suffit d'éditer `src/data/aimm.ts`.
 
-## Points à valider
-
-- X9, X23, X27 : bornes à définir (saisie directe du niveau k).
-- X46 : bornes inversées proposées (≤ 15 % d'erreurs pour passer).
-- X4 : seuil < 3 incompréhensions / mois, autres bornes proposées.
-
-## Ajouter d'autres composants shadcn
 
 Les composants utilisés sont déjà inclus dans `src/components/ui`. Pour en ajouter :
 
