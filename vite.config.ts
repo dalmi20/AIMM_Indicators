@@ -8,4 +8,5 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(import.meta.dirname, "./src") },
   },
+   base: '/AIMM_Indicators/',
 })

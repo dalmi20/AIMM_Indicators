@@ -16,8 +16,8 @@ const D = (n: string, src: string, sc: string[], fn: (v: number) => number, seui
   ({ n, t: "delay", src, sc, fn, seuil, deps })
 const N = (n: string, src: string, sc: string[], seuil: string, deps: Indicator["deps"]): Indicator =>
   ({ n, t: "niv", src, sc, seuil, deps })
-const U = (n: string, src: string, deps: Indicator["deps"]): Indicator =>
-  ({ n, t: "undef", src, seuil: "à définir", deps })
+// const U = (n: string, src: string, deps: Indicator["deps"]): Indicator =>
+//   ({ n, t: "undef", src, seuil: "à définir", deps })
 
 export const IND: Record<string, Indicator> = {
   X1: { n: "Contrat", t: "bin", src: "Recherche dans le SI, sinon questionnaire", seuil: "X1 = 1", deps: [] },
@@ -29,7 +29,9 @@ export const IND: Record<string, Indicator> = {
   X6: Q("Veille", "Questionnaire", "k > 1", []),
   X8: N("Outils veille", "Vérification dans le SI", ["aucun outil", "outils individuels", "peu utilisés", "utilisés par les deux", "plateforme intégrée"], "niveau ≥ 3", [["X6", 0.2]]),
   X7: Q("Co-décision", "Questionnaire", "k > 3", [["X8", 0.4], ["X6", 0.4]]),
-  X9: U("Désaccords", "Bons de commande, dossiers d’affaires", []),
+  X9: R("Désaccords", "Bons de commande, dossiers d’affaires", "Désaccords financiers", "Mois observés", "/ mois",
+  ["> 5", "3 à 5", "> 1 à < 3", "1", "0"],
+  (v) => (v > 5 ? 1 : v >= 3 ? 2 : v > 1 ? 3 : v > 0 ? 4 : 5), "≤ 5/mois", []),
   X10: Q("Revue budgets", "Questionnaire", "k > 2", [["X9", 0.2]], { ext: { lab: "X1 = 1 (Contrat de partenariat)" } }),
   X11: Q("Valeurs", "Questionnaire", "k > 1", []),
   X12: Q("Actions cult.", "Questionnaire", "k > 2", []),
@@ -44,11 +46,11 @@ export const IND: Record<string, Indicator> = {
   X20: Q("Qui fait quoi", "Questionnaire (options 1 à 4)", "k > 2", [["X21", 0.2]], { kmax: 4 }),
   X22: R("Zones grises", "Analyse des emails", "Fils flous ou en double", "Années observées", "/ an", ["> 10", "> 5 à 10", "> 2 à 5", "> 0 à 2", "0"],
     (v) => (v > 10 ? 1 : v > 5 ? 2 : v > 2 ? 3 : v > 0 ? 4 : 5), "≤ 2/an", [["X20", 0.4], ["X21", 0.4]]),
-  X23: U("MAJ resp.", "Historique des organigrammes", [["X22", 0.6], ["X21", 0.6]]),
+  X23: N("MAJ resp.", "Historique des organigrammes (délai de mise à jour)", ["jamais", "> 1 mois", "1 semaine à 1 mois", "1 à 7 jours", "< 1 jour"], "< 1 jour", [["X22", 0.6], ["X21", 0.6]]),
   X24: Q("Référentiel", "Questionnaire et SI", "k > 1", []),
   X25: P("Points coord.", "Analyse du référentiel partagé", "Points identifiés", "Points de référence", "≥ 50 %", [["X24", 0.2]]),
   X26: Q("Entrées/sorties", "Référentiel, sinon questionnaire", "k > 3", [["X25", 0.4]]),
-  X27: U("Délai MAJ", "Historique du référentiel", [["X26", 0.6], ["X24", 0.6]]),
+  X27: N("Délai MAJ", "Historique du référentiel (délai de mise à jour)", ["jamais", "> 1 mois", "1 semaine à 1 mois", "1 à 7 jours", "< 1 jour"], "< 1 jour", [["X26", 0.6], ["X24", 0.6]]),
   X28: P("Planning", "Fichier de suivi d’affaire", "Activités selon planning", "Activités planifiées", "≥ 30 %", []),
   X29: R("Désynchro.", "Suivi d’affaire et emails", "Désynchronisations", "Mois observés", "/ mois", ["> 10", "> 4 à 10", "> 1 à 4", "> 0 à 1", "0"],
     (v) => (v > 10 ? 1 : v > 4 ? 2 : v > 1 ? 3 : v > 0 ? 4 : 5), "≤ 4/mois", [["X28", 0.2]]),
@@ -184,7 +186,7 @@ export const ETAT: Record<string, { d: string; s: string[] }> = {
     ]
   },
   "X9": {
-    "d": "Nb désaccords financiers / an",
+    "d": "Nb désaccords financiers / mois",
     "s": [
       "Désaccords fréquents, non suivis.",
       "Désaccords identifiés mais traités au cas par cas.",
